@@ -1,7 +1,7 @@
 {
   "name": "whisper-base-q8-rn",
   "version": "1.0.0",
-  "description": "React Native application for real-time speech-to-text using ggml-base-q8 model",
+  "description": "React Native application for speech-to-text",
   "main": "index.js",
   "scripts": {
     "android": "react-native run-android",
@@ -12,19 +12,23 @@
     "build:android": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
-    "react": "18.2.0",
-    "react-native": "0.72.6",
-    "react-native-audio-record": "^0.2.2",
+    "@react-native-async-storage/async-storage": "^1.24.0",
+    "@react-native-community/cli-platform-android": "^18.0.0",
+    "@react-native-voice/voice": "^3.2.4",
+    "react": "^18.2.0",
+    "react-native": "^0.72.17",
+    "react-native-audio-recorder-player": "^3.6.14",
     "react-native-fs": "^2.20.0",
+    "react-native-gradle-plugin": "^0.71.19",
     "react-native-permissions": "^3.10.1",
     "react-native-sound": "^0.11.2",
-    "react-native-vector-icons": "^10.0.0",
-    "@react-native-async-storage/async-storage": "^1.19.5"
+    "whisper.rn": "^0.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
+    "@react-native-community/cli": "^18.0.0",
     "@react-native/eslint-config": "^0.72.0",
     "@react-native/metro-config": "^0.72.0",
     "@tsconfig/react-native": "^3.0.0",
@@ -41,4 +45,4 @@
   "jest": {
     "preset": "react-native"
   }
-} 
+}

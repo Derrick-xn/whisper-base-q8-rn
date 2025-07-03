@@ -1,4 +1,6 @@
 {
   "name": "WhisperBaseQ8RN",
-  "displayName": "Whisper Base Q8 RN"
+  "displayName": "Whisper语音转文字",
+  "version": "1.0.0",
+  "description": "基于React Native的实时语音转文字应用"
 } 

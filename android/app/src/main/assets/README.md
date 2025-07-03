@@ -1,29 +1,27 @@
-# Assets Directory
+# Assets 目录
 
-## 模型文件说明
+请将您的 Whisper 模型文件放置在此目录中：
 
-这个目录应该包含Whisper模型文件：
+- `ggml-base-q8.bin` 或 `ggml-base.q8_0.bin` - Whisper Base Q8 量化模型文件
 
-### 需要的文件
-- `ggml-base-q8_0.bin` - Whisper base模型（量化版本）
+模型文件下载地址：
+- Hugging Face: https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.q8_0.bin
+- 国内镜像: https://hf-mirror.com/ggerganov/whisper.cpp/resolve/main/ggml-base.q8_0.bin
 
-### 获取方式
+## 下载命令
 
-#### 方法1：从GitHub Releases下载
-1. 访问项目的[Releases页面](https://github.com/Derrick-xn/whisper-android-demo/releases)
-2. 下载 `ggml-base-q8_0.bin` 文件
-3. 将文件放置在 `app/src/main/assets/` 目录中
+```bash
+# 使用wget下载（如果网络允许）
+wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.q8_0.bin
 
-#### 方法2：从官方下载
-1. 访问 [Whisper.cpp模型下载页面](https://huggingface.co/ggerganov/whisper.cpp)
- 1.1 国内镜像站：https://hf-mirror.com/ggerganov/whisper.cpp 可以直接下载
-2. 下载 `ggml-base.bin` 并使用quantize工具转换为q8_0格式
-3. 或直接下载已量化的 `ggml-base-q8_0.bin`
+# 或使用curl下载
+curl -L -o ggml-base.q8_0.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.q8_0.bin
+```
 
-### 文件大小
-- `ggml-base-q8_0.bin`: 约78MB
+## 注意事项
 
-### 注意事项
-- 模型文件较大，已从Git跟踪中排除
-- 确保文件名完全匹配：`ggml-base-q8_0.bin`
-- 文件放置后需要重新编译应用 
+1. 模型文件较大（约78MB），请确保有足够的存储空间
+2. 下载后请将文件重命名为 `ggml-base-q8.bin` 或保持 `ggml-base.q8_0.bin`
+3. 应用会自动检测并加载此目录中的模型文件
+
+支持的模型格式：.bin 和 .gguf 

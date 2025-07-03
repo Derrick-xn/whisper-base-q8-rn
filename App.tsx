@@ -10,10 +10,10 @@ import {
   ActivityIndicator,
   PermissionsAndroid,
 } from 'react-native';
-import { initWhisper } from 'whisper.rn';
+import { initWhisper, WhisperContext } from 'whisper.rn';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 
-const App = () => {
+const App: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcription, setTranscription] = useState('');
@@ -24,9 +24,9 @@ const App = () => {
   const [audioPath, setAudioPath] = useState('');
   
   const audioRecorderPlayer = useRef(new AudioRecorderPlayer()).current;
-  const recordingTimer = useRef(null);
+  const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const segmentCounter = useRef(0);
-  const whisperContext = useRef(null);
+  const whisperContext = useRef<WhisperContext | null>(null);
 
   useEffect(() => {
     initializeApp();
@@ -40,7 +40,7 @@ const App = () => {
     try {
       await requestPermissions();
       await initializeWhisper();
-    } catch (error) {
+    } catch (error: any) {
       console.error('应用初始化失败:', error);
       setError('应用初始化失败: ' + error.message);
     }
@@ -60,7 +60,7 @@ const App = () => {
         } else {
           throw new Error('录音权限被拒绝');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn('权限请求失败:', err);
         throw err;
       }
@@ -71,21 +71,36 @@ const App = () => {
     try {
       setError('正在初始化Whisper模型...');
       
-      // 初始化Whisper，模型文件从Android assets目录加载
-      const modelFilename = 'ggml-base-q8.bin'; // 或者使用 'ggml-base.q8_0.bin'
+      // 尝试不同的模型文件名
+      const modelFilenames = ['ggml-base.q8_0.bin', 'ggml-base-q8.bin'];
+      let context: WhisperContext | null = null;
       
-      const context = await initWhisper({
-        filePath: modelFilename,
-        isBundleAsset: true, // 表示从assets目录加载
-      });
+      for (const filename of modelFilenames) {
+        try {
+          console.log(`尝试加载模型: ${filename}`);
+          context = await initWhisper({
+            filePath: filename,
+            isBundleAsset: true,
+          });
+          console.log(`成功加载模型: ${filename}`);
+          break;
+        } catch (err) {
+          console.log(`模型 ${filename} 加载失败:`, err);
+          continue;
+        }
+      }
+      
+      if (!context) {
+        throw new Error('未找到可用的模型文件，请确保已将模型文件放置在assets目录中');
+      }
       
       whisperContext.current = context;
       setIsWhisperReady(true);
       setError('');
       console.log('Whisper模型初始化成功');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Whisper初始化失败:', error);
-      setError('Whisper初始化失败: ' + error.message + '\n请确保模型文件 ggml-base-q8.bin 已放置在 android/app/src/main/assets/ 目录中');
+      setError('Whisper初始化失败: ' + error.message + '\n\n请下载模型文件到 android/app/src/main/assets/ 目录：\n1. ggml-base.q8_0.bin\n2. 或 ggml-base-q8.bin');
       setIsWhisperReady(false);
     }
   };
@@ -107,7 +122,7 @@ const App = () => {
     }
   };
 
-  const generateAudioPath = () => {
+  const generateAudioPath = (): string => {
     const timestamp = Date.now();
     const segment = segmentCounter.current++;
     return `${audioRecorderPlayer.rnDirs.CacheDir}/audio_segment_${timestamp}_${segment}.wav`;
@@ -135,7 +150,7 @@ const App = () => {
         }
       }, 3000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('开始录音失败:', error);
       setError('开始录音失败: ' + error.message);
       setIsRecording(false);
@@ -156,7 +171,7 @@ const App = () => {
 
     console.log('开始录制音频片段到:', path);
     await audioRecorderPlayer.startRecorder(path, audioSet);
-    audioRecorderPlayer.addRecordBackListener((e) => {
+    audioRecorderPlayer.addRecordBackListener((e: any) => {
       // 可以在这里更新录音状态
       console.log('录音进度:', e.currentPosition);
     });
@@ -179,14 +194,14 @@ const App = () => {
       if (isRecording) {
         await startRecordingSegment();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('处理音频片段失败:', error);
       setError('处理音频片段失败: ' + error.message);
       setIsTranscribing(false);
     }
   };
 
-  const transcribeAudioSegment = async (filePath) => {
+  const transcribeAudioSegment = async (filePath: string) => {
     try {
       console.log('开始转录音频片段:', filePath);
       
@@ -224,7 +239,7 @@ const App = () => {
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('转录失败:', error);
       setError('转录失败: ' + error.message);
     }
@@ -253,7 +268,7 @@ const App = () => {
 
       setRealtimeTranscription('');
       console.log('录音已停止');
-    } catch (error) {
+    } catch (error: any) {
       console.error('停止录音失败:', error);
       setError('停止录音失败: ' + error.message);
       setIsTranscribing(false);
@@ -267,7 +282,7 @@ const App = () => {
     segmentCounter.current = 0;
   };
 
-  const getStatusText = () => {
+  const getStatusText = (): string => {
     if (!isWhisperReady) return '模型加载中...';
     if (isRecording && isTranscribing) return '录音中 + 转录中...';
     if (isRecording) return '录音中...';
@@ -275,7 +290,7 @@ const App = () => {
     return '待机中';
   };
 
-  const getStatusColor = () => {
+  const getStatusColor = (): string => {
     if (!isWhisperReady) return '#FF9500';
     if (isRecording) return '#4CAF50';
     if (isTranscribing) return '#2196F3';
@@ -360,7 +375,7 @@ const App = () => {
         </Text>
         {!isWhisperReady && (
           <Text style={styles.warningText}>
-            提示：请确保已将 ggml-base-q8.bin 模型文件放置在 android/app/src/main/assets/ 目录中
+            提示：请下载模型文件到 android/app/src/main/assets/ 目录
           </Text>
         )}
       </View>
